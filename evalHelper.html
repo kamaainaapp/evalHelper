@@ -1,0 +1,1872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebEval Studio - Website Evaluation Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        /* Setup Section */
+        .setup-section {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .setup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .setup-header h2 {
+            font-size: 18px;
+            color: #495057;
+        }
+
+        .toggle-icon {
+            font-size: 20px;
+            color: #6c757d;
+        }
+
+        .setup-content {
+            margin-top: 15px;
+        }
+
+        .setup-content.collapsed {
+            display: none;
+        }
+
+        .api-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .api-input-group input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        .api-input-group button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .api-input-group button:hover {
+            background: #0056b3;
+        }
+
+        .api-status {
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .api-status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .api-status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .api-status.hidden {
+            display: none;
+        }
+
+        .prompt-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .prompt-actions button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .reset-btn {
+            background: #6c757d;
+            color: white;
+        }
+
+        .reset-btn:hover {
+            background: #5a6268;
+        }
+
+        .save-prompt-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .save-prompt-btn:hover {
+            background: #218838;
+        }
+
+        /* Project Requirements */
+        .requirements-section {
+            margin-bottom: 25px;
+        }
+
+        .requirements-section h2 {
+            font-size: 18px;
+            color: #495057;
+            margin-bottom: 10px;
+        }
+
+        .requirements-section textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            resize: vertical;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .file-upload-area {
+            margin-top: 10px;
+            padding: 15px;
+            border: 2px dashed #ced4da;
+            border-radius: 4px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-upload-area:hover {
+            border-color: #007bff;
+            background: #f8f9fa;
+        }
+
+        .file-upload-area input {
+            display: none;
+        }
+
+        .uploaded-file {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: #e7f3ff;
+            border-radius: 4px;
+            margin-top: 8px;
+            font-size: 13px;
+        }
+
+        .uploaded-file button {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 0;
+        }
+
+        .char-count {
+            text-align: right;
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        /* Sites Grid */
+        .sites-section h2 {
+            font-size: 18px;
+            color: #495057;
+            margin-bottom: 15px;
+        }
+
+        .sites-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .site-card {
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            background: #fff;
+            transition: all 0.3s;
+        }
+
+        .site-card.active {
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        }
+
+        .site-header {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .upload-section {
+            margin-bottom: 12px;
+        }
+
+        .upload-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #495057;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .upload-btn {
+            width: 100%;
+            padding: 8px;
+            background: #f8f9fa;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .upload-btn:hover {
+            background: #e9ecef;
+        }
+
+        .screenshot-preview {
+            margin-top: 8px;
+            max-width: 100%;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+        }
+
+        .file-indicator {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #28a745;
+            color: white;
+            border-radius: 3px;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+
+        /* Voice Notes */
+        .voice-section {
+            background: #f8f9fa;
+            border-radius: 4px;
+            padding: 12px;
+        }
+
+        .voice-controls {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .voice-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .record-btn {
+            background: #dc3545;
+            color: white;
+            flex: 1;
+        }
+
+        .record-btn:hover {
+            background: #c82333;
+        }
+
+        .record-btn.recording {
+            background: #28a745;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .undo-btn, .clear-btn {
+            background: #6c757d;
+            color: white;
+        }
+
+        .undo-btn:hover, .clear-btn:hover {
+            background: #5a6268;
+        }
+
+        .voice-notes-text {
+            width: 100%;
+            min-height: 80px;
+            padding: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            resize: vertical;
+            font-size: 13px;
+            font-family: inherit;
+        }
+
+        /* Evaluate Button */
+        .evaluate-section {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .evaluate-btn {
+            padding: 15px 50px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .evaluate-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40,167,69,0.3);
+        }
+
+        .evaluate-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            margin-top: 15px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress-bar.active {
+            display: block;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #28a745;
+            width: 0%;
+            transition: width 0.3s;
+            animation: progress-animation 2s infinite;
+        }
+
+        @keyframes progress-animation {
+            0% { width: 0%; }
+            50% { width: 70%; }
+            100% { width: 100%; }
+        }
+
+        /* Results Section */
+        .results-section {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .results-section.active {
+            display: block;
+        }
+
+        .results-section h2 {
+            font-size: 20px;
+            color: #495057;
+            margin-bottom: 15px;
+        }
+
+        .results-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            color: #495057;
+        }
+
+        .tab-btn.active {
+            color: #007bff;
+            border-bottom-color: #007bff;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .result-text {
+            width: 100%;
+            min-height: 300px;
+            padding: 15px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 13px;
+            resize: vertical;
+            white-space: pre-wrap;
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .copy-btn {
+            padding: 8px 16px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .copy-btn:hover {
+            background: #0056b3;
+        }
+
+        /* Export Section */
+        .export-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .export-section h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #495057;
+        }
+
+        .export-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .export-csv-btn, .save-session-btn, .load-session-btn, .clear-all-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .export-csv-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .export-csv-btn:hover {
+            background: #218838;
+        }
+
+        .save-session-btn {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .save-session-btn:hover {
+            background: #138496;
+        }
+
+        .load-session-btn {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .load-session-btn:hover {
+            background: #e0a800;
+        }
+
+        .clear-all-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .clear-all-btn:hover {
+            background: #c82333;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: #28a745;
+            color: white;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+            display: none;
+        }
+
+        .notification.active {
+            display: block;
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .sites-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sites-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 WebEval Studio</h1>
+        <p class="subtitle">AI-Powered Website Evaluation Tool with Comprehensive UI/UX Analysis</p>
+
+        <!-- API Configuration -->
+        <div class="setup-section">
+            <div class="setup-header" onclick="toggleSetup()">
+                <h2>⚙️ API Configuration</h2>
+                <span class="toggle-icon" id="setupToggle">▼</span>
+            </div>
+            <div class="setup-content" id="setupContent">
+                <div id="apiStatus" class="api-status hidden"></div>
+                <div class="api-input-group">
+                    <input type="password" id="apiKey" placeholder="Enter your Claude API Key (sk-ant-...)" />
+                    <button onclick="testApiConnection()">Test Connection</button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- System Prompt Configuration -->
+        <div class="setup-section">
+            <div class="setup-header" onclick="toggleSystemPrompt()">
+                <h2>📝 System Prompt (Evaluation Criteria)</h2>
+                <span class="toggle-icon" id="systemPromptToggle">▶</span>
+            </div>
+            <div class="setup-content collapsed" id="systemPromptContent">
+                <p style="font-size: 13px; color: #6c757d; margin-bottom: 10px;">
+                    ⚙️ Customize the evaluation criteria and UI/UX best practices. The default prompt includes comprehensive design analysis.
+                <p style="font-size: 13px; color: #6c757d; margin-top: 10px;">
+                    💡 Get your API key from <a href="https://console.anthropic.com/" target="_blank">console.anthropic.com</a>
+                    <br>Recommended: Claude Sonnet 4.5 for best visual and UI/UX analysis
+                    <br><br>
+                    ⚠️ <strong>Proxy Server Required:</strong> Due to CORS restrictions, you need to run the proxy server first:
+                    <br><code style="background: #e9ecef; padding: 2px 6px; border-radius: 3px;">node proxy-server.js</code>
+                    <br>The proxy should be running on <code style="background: #e9ecef; padding: 2px 6px; border-radius: 3px;">http://localhost:3000</code>
+                </p>
+                <textarea id="systemPrompt" style="width: 100%; min-height: 500px; padding: 12px; border: 1px solid #ced4da; border-radius: 4px; font-family: monospace; font-size: 12px; resize: vertical;"></textarea>
+                <div class="prompt-actions">
+                    <button class="reset-btn" onclick="resetSystemPrompt()">↺ Reset to Default</button>
+                    <button class="save-prompt-btn" onclick="saveSystemPrompt()">💾 Save Changes</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Project Requirements -->
+        <div class="requirements-section">
+            <h2>📋 Project Requirements & Specifications</h2>
+            <textarea id="projectRequirements" placeholder="Paste your project requirements and specifications here...
+
+Example:
+- Mobile responsive design required
+- Should look like Spotify (dark theme, green accents)
+- Must include contact form with validation
+- Navigation menu with dropdown
+- Hero section with background image
+- etc."></textarea>
+            <div class="char-count" id="reqCharCount">0 characters</div>
+            
+            <div class="file-upload-area" onclick="document.getElementById('reqCodeFile').click()">
+                <input type="file" id="reqCodeFile" accept=".html,.htm" onchange="handleRequirementsCodeUpload(event)" />
+                📄 Optional: Upload reference HTML/code file for requirements
+            </div>
+            <div id="reqCodeFileIndicator"></div>
+        </div>
+
+        <!-- Sites Grid -->
+        <div class="sites-section">
+            <h2>🌐 Website Evaluation (A-F)</h2>
+            <div class="sites-grid" id="sitesGrid">
+                <!-- Sites A-F will be generated here -->
+            </div>
+        </div>
+
+        <!-- Evaluate Button -->
+        <div class="evaluate-section">
+            <button class="evaluate-btn" onclick="evaluateAllSites()" id="evaluateBtn">
+                🚀 Evaluate All Sites
+            </button>
+            <div class="progress-bar" id="progressBar">
+                <div class="progress-fill"></div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section" id="resultsSection">
+            <h2>📊 Evaluation Results</h2>
+            
+            <div class="results-tabs">
+                <button class="tab-btn active" onclick="switchTab('overall')">Overall</button>
+                <button class="tab-btn" onclick="switchTab('aesthetic')">Aesthetic</button>
+                <button class="tab-btn" onclick="switchTab('functionality')">Functionality</button>
+                <button class="tab-btn" onclick="switchTab('relevance')">Relevance</button>
+            </div>
+
+            <div class="tab-content active" id="overall-tab">
+                <textarea class="result-text" id="overall-result" placeholder="Overall rankings will appear here..."></textarea>
+                <div class="result-actions">
+                    <button class="copy-btn" onclick="copyResult('overall')">📋 Copy</button>
+                </div>
+            </div>
+
+            <div class="tab-content" id="aesthetic-tab">
+                <textarea class="result-text" id="aesthetic-result" placeholder="Aesthetic rankings will appear here..."></textarea>
+                <div class="result-actions">
+                    <button class="copy-btn" onclick="copyResult('aesthetic')">📋 Copy</button>
+                </div>
+            </div>
+
+            <div class="tab-content" id="functionality-tab">
+                <textarea class="result-text" id="functionality-result" placeholder="Functionality rankings will appear here..."></textarea>
+                <div class="result-actions">
+                    <button class="copy-btn" onclick="copyResult('functionality')">📋 Copy</button>
+                </div>
+            </div>
+
+            <div class="tab-content" id="relevance-tab">
+                <textarea class="result-text" id="relevance-result" placeholder="Relevance rankings will appear here..."></textarea>
+                <div class="result-actions">
+                    <button class="copy-btn" onclick="copyResult('relevance')">📋 Copy</button>
+                </div>
+            </div>
+
+            <!-- Export Section -->
+            <div class="export-section">
+                <h3>💾 Export & Save</h3>
+                <div class="export-actions">
+                    <button class="export-csv-btn" onclick="exportToCSV()">📊 Export to CSV</button>
+                    <button class="save-session-btn" onclick="saveSession()">💾 Save Session</button>
+                    <button class="load-session-btn" onclick="loadSession()">📂 Load Session</button>
+                    <button class="clear-all-btn" onclick="clearAll()">🗑️ Clear All</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // Global state
+        const state = {
+            sites: ['A', 'B', 'C', 'D', 'E', 'F'],
+            siteData: {},
+            apiKey: sessionStorage.getItem('apiKey') || '',
+            recognition: null,
+            currentRecordingSite: null,
+            requirementsCodeFile: null,
+            systemPrompt: '',
+            // API endpoint - use local proxy to bypass CORS
+            apiEndpoint: 'http://localhost:3000/v1/messages'
+        };
+
+        // Default System Prompt with Comprehensive UI/UX Evaluation Criteria
+        const DEFAULT_SYSTEM_PROMPT = `You are a professional website and UI/UX evaluator with expertise in design principles, user experience, and web development best practices.
+
+EVALUATION SYSTEM:
+==================
+
+Evaluation Categories:
+1. **Overall** - Combined assessment of all factors below
+2. **Aesthetic** - Visual design quality (see detailed criteria below)
+3. **Functionality** - Feature completeness, interactivity, and bugs
+4. **Relevance** - How well the site meets specified requirements and purpose
+
+Scoring Scale (1-7):
+1. Error/Does not load
+2. Practically unusable/poor
+3. Below average
+4. Average
+5. Good (should be fairly rare)
+6. Great
+7. Perfect
+
+OUTPUT FORMAT (CRITICAL - FOLLOW EXACTLY):
+==========================================
+For each category, rank sites from best to worst using this EXACT format:
+
+[Best Letter] is best because [reasons]
+* [Next Letter] is worse than [Previous Letter] because [reasons] - [score#]
+* [Next Letter] is worse than [Previous Letter] because [reasons] - [score#]
+* [Worst Letter] is worst because [reasons] - [score#]
+
+AESTHETIC EVALUATION CRITERIA:
+==============================
+When you have screenshots, evaluate ALL of these visual design elements:
+
+**LAYOUT & STRUCTURE:**
+- Grid alignment and consistency
+- Margins and padding (appropriate spacing, consistent rhythm)
+- Visual hierarchy (size/weight relationships, importance ordering)
+- Content flow and reading order
+- Symmetry vs asymmetry (intentional balance)
+- White space usage (breathing room, not cramped or too sparse)
+- Section divisions and organization
+- Element positioning and placement
+- Responsive breakpoints and layout adaptation
+
+**TYPOGRAPHY:**
+- Font choices (appropriate for context and brand)
+- Font pairing (do different fonts work together harmoniously)
+- Font sizes and hierarchy (h1, h2, h3, body, small text)
+- Line height / leading (readability and breathing room)
+- Letter spacing / tracking
+- Font weights (thin, light, regular, medium, bold, black usage)
+- Text alignment (left, center, right, justified - appropriateness)
+- Readability and legibility across different sizes
+- Text overflow, truncation, or cut-off issues
+- Responsive text sizing
+
+**COLOR:**
+- Color palette coherence (do all colors work together)
+- Color harmony (complementary, analogous, triadic, monochromatic)
+- Contrast ratios (text vs background, WCAG accessibility)
+- Brand color usage and consistency
+- Color psychology and mood (appropriate for purpose)
+- Gradient quality, direction, and smoothness
+- Color accessibility for colorblind users
+- Background/foreground relationships
+- Color consistency across components
+- Accent color usage and frequency
+- Hover/active state colors
+
+**VISUAL ELEMENTS:**
+- Icon style and consistency (outline vs filled, sizes)
+- Icon sizing and optical alignment
+- Icon-text pairing and spacing
+- Image quality and resolution
+- Image aspect ratios and cropping
+- Illustrations and graphics quality
+- Photography style and consistency
+- Border styles, thickness, and colors
+- Dividers and separators (visual weight)
+- Box shadows (depth, direction, blur, spread)
+- Drop shadows on text (readability vs decoration)
+- Overlays and opacity effects
+- Background patterns and textures
+- Visual consistency across all elements
+- Decorative elements (purpose and restraint)
+
+**COMPONENT DESIGN:**
+- Button styling (size, padding, border-radius)
+- Button hierarchy (primary, secondary, tertiary, ghost)
+- Button states (default, hover, active, focus, disabled)
+- Form input styling and consistency
+- Form labels and placeholders
+- Input validation states (error, success, warning)
+- Input focus states and accessibility
+- Card/container design and elevation
+- Navigation menu styling
+- Mobile navigation (hamburger menu design)
+- Modal/dialog appearance and backdrop
+- Tooltip design and positioning
+- Badge and tag styling
+- Progress indicators and loaders
+- Loading states and skeleton screens
+- Breadcrumb design
+- Pagination styling
+- Table design (headers, rows, striping)
+- Alert/notification styling
+
+**VISUAL POLISH & DETAILS:**
+- Pixel-perfect alignment
+- Consistent spacing rhythm (8px, 16px, 24px grid systems)
+- Professional appearance
+- Attention to micro-details
+- Element consistency across pages
+- Visual weight balance
+- Refinement level and finish quality
+- Modern vs outdated aesthetic
+- Animations and transitions (smoothness, appropriateness)
+- Micro-interactions
+- Feedback mechanisms (visual responses to actions)
+
+**SPECIFIC VISUAL ISSUES TO FLAG:**
+- Overlapping elements (unintentional layering)
+- Cut-off content or text (viewport issues)
+- Misaligned items (off by a few pixels)
+- Inconsistent spacing patterns
+- Broken, missing, or placeholder images
+- Text overflow problems
+- Z-index layering issues (elements stacking incorrectly)
+- Clashing colors (poor combinations)
+- Poor contrast (hard to read text)
+- Awkward gaps or cramped areas
+- Elements touching screen edges inappropriately
+- Uneven margins/padding (15px on one side, 22px on another)
+- Inconsistent border usage
+- Orphaned elements (floating with no clear relationship)
+- Visual imbalance (heavy on one side)
+- Inconsistent rounded corners
+- Blurry or pixelated images
+- Stretched or squished aspect ratios
+- Jarring animations or transitions
+- Inaccessible color combinations
+
+**DESIGN REFERENCE MATCHING:**
+If requirements mention matching a specific design style (e.g., "looks like Spotify", "Apple-style", "Material Design", "Brutalist", etc.):
+
+Evaluate:
+- Overall visual similarity to the reference style
+- Component styling match (buttons, cards, etc.)
+- Color scheme alignment (specific hex values if mentioned)
+- Layout structure similarity
+- Typography matching (font families, weights, sizes)
+- Spacing/rhythm match (margin and padding patterns)
+- Animation style (if applicable)
+- Dark mode vs light mode appropriateness
+
+Identify SPECIFIC DIFFERENCES when it doesn't match:
+- "Header uses 20px margin vs Spotify's 16px"
+- "Green #28a745 vs Spotify's signature #1DB954"
+- "Uses Arial sans-serif vs Spotify's Circular font family"
+- "Button border-radius is 8px vs Apple's typical 10px"
+- "Card shadows are too harsh vs Material Design's subtle elevation"
+- "Spacing rhythm is inconsistent vs the 8px grid system"
+
+FUNCTIONALITY EVALUATION CRITERIA:
+==================================
+
+**INTERACTIVE ELEMENTS:**
+- All buttons are clickable and functional
+- Dropdowns open/close properly
+- Forms submit correctly (or show proper validation)
+- All navigation links work
+- Modal/dialog triggers function
+- Accordions expand and collapse
+- Tabs switch content properly
+- Carousels/sliders function smoothly
+- Search functionality works
+- Filters apply correctly
+- Sorting mechanisms work
+- Checkboxes and radio buttons function
+- Toggle switches work
+- Date pickers function
+- File upload mechanisms work
+
+**RESPONSIVE DESIGN:**
+- Mobile layout adapts properly (if required)
+- Tablet layout works (if applicable)
+- Desktop layout displays correctly
+- Breakpoint transitions are smooth
+- Touch targets are adequate size (minimum 44x44px on mobile)
+- Text scales appropriately on mobile
+- Images are responsive
+- Navigation adapts (hamburger menu functionality)
+- Content reflows properly
+- No horizontal scrolling (unless intentional)
+- Elements stack properly on mobile
+- Hidden elements on mobile are truly hidden
+
+**USER EXPERIENCE:**
+- Intuitive navigation
+- Clear call-to-actions
+- Form usability and logic
+- Error handling (helpful messages)
+- Loading feedback (spinners, progress bars)
+- Success confirmations
+- Helpful and specific error messages
+- Logical user flow
+- Keyboard navigation support
+- Focus indicators visible
+- Skip links for accessibility
+- ARIA labels where appropriate
+
+**BUGS & ISSUES:**
+- JavaScript console errors
+- Console warnings
+- Broken functionality
+- Missing required features
+- Performance issues (slow loading, janky scrolling)
+- Accessibility violations
+- Dead links
+- 404 errors
+- Form submission failures
+- Validation not working
+- Memory leaks
+- Infinite loops
+
+RELEVANCE EVALUATION CRITERIA:
+===============================
+
+**SPEC COMPLIANCE:**
+- All required features are present
+- Prohibited libraries/frameworks are avoided
+- Correct implementations of specified features
+- Feature completeness (nothing missing from requirements)
+- Technical requirements met (specific HTML elements, attributes, etc.)
+- Naming conventions followed (if specified)
+- File structure matches requirements (if applicable)
+
+**PURPOSE ALIGNMENT:**
+- Solves the intended problem
+- Appropriate for target audience
+- Meets stated business goals
+- Follows industry standards for the type of site
+- Content is relevant to the purpose
+- Features support the main use case
+
+**REQUIREMENTS MATCHING:**
+- Design reference adherence (if specified)
+- Color scheme matches (if specified)
+- Layout matches mockups/wireframes (if provided)
+- Functionality matches specifications
+- Content structure follows requirements
+- Edge cases handled as specified
+
+GENERAL EVALUATION GUIDELINES:
+===============================
+
+1. **Keep justifications succinct but specific**
+   - "Header has uneven margins (15px left, 30px right)" 
+   - NOT just "spacing issues"
+
+2. **Category separation:**
+   - Don't mention functionality issues in Aesthetic rankings
+   - Don't mention aesthetic issues in Functionality rankings
+   - Keep each category focused on its domain
+
+3. **Screenshot analysis:**
+   - When screenshots are provided, USE THEM extensively for visual assessment
+   - Describe what you actually see in the image
+   - Compare visual elements across screenshots
+
+4. **Code analysis:**
+   - When code is provided, analyze against specifications
+   - Check for technical compliance
+   - Verify proper HTML structure and semantics
+   - Look for prohibited code patterns
+
+5. **Voice notes:**
+   - Factor in user observations from voice notes
+   - These often contain context about bugs or issues not visible in screenshots
+
+6. **Penalty guidelines:**
+   - Mobile responsiveness failures = MAJOR Functionality penalty (if mobile required)
+   - Code spec violations = MAJOR Overall and Relevance penalties
+   - Missing required features = SEVERE Relevance penalty
+   - Broken core functionality = SEVERE Functionality penalty
+   - Poor accessibility = MODERATE penalty across categories
+
+7. **Be specific about visual issues:**
+   - Measure spacing differences if noticeable
+   - Identify exact color mismatches
+   - Point out specific alignment problems
+   - Name the component that has issues
+
+8. **Design reference evaluation:**
+   - When a design reference is mentioned (e.g., "looks like Spotify")
+   - Compare systematically: layout, colors, typography, spacing, components
+   - Be specific about what matches and what doesn't
+   - This heavily impacts Aesthetic and Relevance scores`;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeSites();
+            initializeVoiceRecognition();
+            loadSystemPrompt();
+            
+            // Load API key if exists
+            if (state.apiKey) {
+                document.getElementById('apiKey').value = state.apiKey;
+            }
+
+            // Character count for requirements
+            document.getElementById('projectRequirements').addEventListener('input', (e) => {
+                document.getElementById('reqCharCount').textContent = `${e.target.value.length} characters`;
+            });
+
+            // Try to load previous session
+            const savedSession = localStorage.getItem('webevalSession');
+            if (savedSession) {
+                const lastSaved = new Date(JSON.parse(savedSession).timestamp);
+                const now = new Date();
+                const hoursSince = (now - lastSaved) / (1000 * 60 * 60);
+                
+                if (hoursSince < 24) {
+                    showNotification('Previous session found! Click "Load Session" to restore.', false);
+                }
+            }
+        });
+
+        // System Prompt Functions
+        function loadSystemPrompt() {
+            const saved = localStorage.getItem('customSystemPrompt');
+            state.systemPrompt = saved || DEFAULT_SYSTEM_PROMPT;
+            document.getElementById('systemPrompt').value = state.systemPrompt;
+        }
+
+        function saveSystemPrompt() {
+            state.systemPrompt = document.getElementById('systemPrompt').value;
+            localStorage.setItem('customSystemPrompt', state.systemPrompt);
+            showNotification('System prompt saved!', false);
+        }
+
+        function resetSystemPrompt() {
+            if (confirm('Reset to default system prompt? Your custom prompt will be lost.')) {
+                state.systemPrompt = DEFAULT_SYSTEM_PROMPT;
+                document.getElementById('systemPrompt').value = DEFAULT_SYSTEM_PROMPT;
+                localStorage.removeItem('customSystemPrompt');
+                showNotification('System prompt reset to default', false);
+            }
+        }
+
+        function toggleSystemPrompt() {
+            const content = document.getElementById('systemPromptContent');
+            const icon = document.getElementById('systemPromptToggle');
+            
+            content.classList.toggle('collapsed');
+            icon.textContent = content.classList.contains('collapsed') ? '▶' : '▼';
+        }
+
+        // Initialize site cards
+        function initializeSites() {
+            const grid = document.getElementById('sitesGrid');
+            
+            state.sites.forEach(letter => {
+                state.siteData[letter] = {
+                    screenshot: null,
+                    screenshotPreview: null,
+                    codeFile: null,
+                    voiceNotes: '',
+                    voiceHistory: []
+                };
+
+                const card = document.createElement('div');
+                card.className = 'site-card';
+                card.id = `site-${letter}`;
+                card.innerHTML = `
+                    <div class="site-header">Site ${letter}</div>
+                    
+                    <!-- Screenshot Upload -->
+                    <div class="upload-section">
+                        <label class="upload-label">Screenshot (Optional)</label>
+                        <button class="upload-btn" onclick="document.getElementById('screenshot-${letter}').click()">
+                            📸 Upload Screenshot
+                        </button>
+                        <input type="file" id="screenshot-${letter}" accept="image/*" style="display: none" onchange="handleScreenshotUpload(event, '${letter}')" />
+                        <div id="screenshot-preview-${letter}"></div>
+                    </div>
+
+                    <!-- Code Upload -->
+                    <div class="upload-section">
+                        <label class="upload-label">HTML Code (Optional)</label>
+                        <button class="upload-btn" onclick="document.getElementById('code-${letter}').click()">
+                            💻 Upload HTML File
+                        </button>
+                        <input type="file" id="code-${letter}" accept=".html,.htm" style="display: none" onchange="handleCodeUpload(event, '${letter}')" />
+                        <div id="code-indicator-${letter}"></div>
+                    </div>
+
+                    <!-- Voice Notes -->
+                    <div class="voice-section">
+                        <label class="upload-label">🎤 Voice Notes</label>
+                        <div class="voice-controls">
+                            <button class="voice-btn record-btn" onclick="toggleRecording('${letter}')" id="record-btn-${letter}">
+                                ⏺️ Record
+                            </button>
+                            <button class="voice-btn undo-btn" onclick="undoLastRecording('${letter}')">
+                                ↶ Undo
+                            </button>
+                            <button class="voice-btn clear-btn" onclick="clearVoiceNotes('${letter}')">
+                                ✕
+                            </button>
+                        </div>
+                        <textarea class="voice-notes-text" id="voice-notes-${letter}" placeholder="Voice notes will appear here (or type manually)..."></textarea>
+                    </div>
+                `;
+                
+                grid.appendChild(card);
+
+                // Add event listener for voice notes textarea
+                document.getElementById(`voice-notes-${letter}`).addEventListener('input', (e) => {
+                    state.siteData[letter].voiceNotes = e.target.value;
+                });
+            });
+        }
+
+        // Voice Recognition Setup
+        function initializeVoiceRecognition() {
+            if ('webkitSpeechRecognition' in window) {
+                state.recognition = new webkitSpeechRecognition();
+                state.recognition.continuous = true;
+                state.recognition.interimResults = true;
+                state.recognition.lang = 'en-US';
+
+                state.recognition.onresult = (event) => {
+                    if (!state.currentRecordingSite) return;
+
+                    let interimTranscript = '';
+                    let finalTranscript = '';
+
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript;
+                        if (event.results[i].isFinal) {
+                            finalTranscript += transcript + ' ';
+                        } else {
+                            interimTranscript += transcript;
+                        }
+                    }
+
+                    const textarea = document.getElementById(`voice-notes-${state.currentRecordingSite}`);
+                    const site = state.siteData[state.currentRecordingSite];
+                    
+                    if (finalTranscript) {
+                        site.voiceNotes += finalTranscript;
+                        site.voiceHistory.push(finalTranscript);
+                        textarea.value = site.voiceNotes;
+                    }
+                };
+
+                state.recognition.onerror = (event) => {
+                    console.error('Speech recognition error:', event.error);
+                    if (state.currentRecordingSite) {
+                        stopRecording(state.currentRecordingSite);
+                    }
+                    showNotification('Voice recognition error. Please try again.', true);
+                };
+
+                state.recognition.onend = () => {
+                    if (state.currentRecordingSite) {
+                        const btn = document.getElementById(`record-btn-${state.currentRecordingSite}`);
+                        btn.classList.remove('recording');
+                        btn.innerHTML = '⏺️ Record';
+                    }
+                };
+            } else {
+                showNotification('Voice recognition not supported. Use Chrome or Edge for voice features.', true);
+            }
+        }
+
+        // Toggle Recording
+        function toggleRecording(letter) {
+            if (state.currentRecordingSite === letter) {
+                stopRecording(letter);
+            } else {
+                if (state.currentRecordingSite) {
+                    stopRecording(state.currentRecordingSite);
+                }
+                startRecording(letter);
+            }
+        }
+
+        function startRecording(letter) {
+            if (!state.recognition) {
+                showNotification('Voice recognition not available', true);
+                return;
+            }
+
+            state.currentRecordingSite = letter;
+            const btn = document.getElementById(`record-btn-${letter}`);
+            btn.classList.add('recording');
+            btn.innerHTML = '⏹️ Stop';
+
+            // Highlight active card
+            document.querySelectorAll('.site-card').forEach(card => card.classList.remove('active'));
+            document.getElementById(`site-${letter}`).classList.add('active');
+
+            state.recognition.start();
+        }
+
+        function stopRecording(letter) {
+            if (state.recognition && state.currentRecordingSite === letter) {
+                state.recognition.stop();
+                state.currentRecordingSite = null;
+                
+                const btn = document.getElementById(`record-btn-${letter}`);
+                btn.classList.remove('recording');
+                btn.innerHTML = '⏺️ Record';
+
+                document.getElementById(`site-${letter}`).classList.remove('active');
+            }
+        }
+
+        function undoLastRecording(letter) {
+            const site = state.siteData[letter];
+            if (site.voiceHistory.length > 0) {
+                const lastEntry = site.voiceHistory.pop();
+                site.voiceNotes = site.voiceNotes.replace(lastEntry, '');
+                document.getElementById(`voice-notes-${letter}`).value = site.voiceNotes;
+                showNotification('Last recording undone', false);
+            }
+        }
+
+        function clearVoiceNotes(letter) {
+            if (confirm('Clear all voice notes for this site?')) {
+                state.siteData[letter].voiceNotes = '';
+                state.siteData[letter].voiceHistory = [];
+                document.getElementById(`voice-notes-${letter}`).value = '';
+                showNotification('Voice notes cleared', false);
+            }
+        }
+
+        // File Upload Handlers
+        
+        // Helper: Resize images to prevent payload size issues
+        function resizeImage(file, maxWidth = 800) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > maxWidth) {
+                            height = (height * maxWidth) / width;
+                            width = maxWidth;
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL('image/jpeg', 0.85));
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        async function handleScreenshotUpload(event, letter) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            showNotification(`Processing screenshot for Site ${letter}...`, false);
+            
+            const resizedDataUrl = await resizeImage(file, 800);
+            state.siteData[letter].screenshot = resizedDataUrl;
+            state.siteData[letter].screenshotPreview = file.name;
+            
+            const preview = document.getElementById(`screenshot-preview-${letter}`);
+            preview.innerHTML = `
+                <img src="${resizedDataUrl}" class="screenshot-preview" alt="Screenshot ${letter}" />
+                <div class="uploaded-file">
+                    ✓ ${file.name} (optimized)
+                    <button onclick="removeScreenshot('${letter}')">✕</button>
+                </div>
+            `;
+            
+            showNotification(`Screenshot uploaded for Site ${letter}`, false);
+        }
+        
+        function removeScreenshot(letter) {
+            state.siteData[letter].screenshot = null;
+            state.siteData[letter].screenshotPreview = null;
+            document.getElementById(`screenshot-preview-${letter}`).innerHTML = '';
+            document.getElementById(`screenshot-${letter}`).value = '';
+            showNotification(`Screenshot removed from Site ${letter}`, false);
+        }
+
+        function handleCodeUpload(event, letter) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                state.siteData[letter].codeFile = e.target.result;
+                
+                const indicator = document.getElementById(`code-indicator-${letter}`);
+                indicator.innerHTML = `
+                    <div class="uploaded-file">
+                        ✓ ${file.name}
+                        <button onclick="removeCode('${letter}')">✕</button>
+                    </div>
+                `;
+                
+                showNotification(`Code file uploaded for Site ${letter}`, false);
+            };
+            reader.readAsText(file);
+        }
+        
+        function removeCode(letter) {
+            state.siteData[letter].codeFile = null;
+            document.getElementById(`code-indicator-${letter}`).innerHTML = '';
+            document.getElementById(`code-${letter}`).value = '';
+            showNotification(`Code removed from Site ${letter}`, false);
+        }
+
+        function handleRequirementsCodeUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                state.requirementsCodeFile = e.target.result;
+                
+                const indicator = document.getElementById('reqCodeFileIndicator');
+                indicator.innerHTML = `<div class="uploaded-file">
+                    📄 ${file.name}
+                    <button onclick="clearRequirementsCode()">✕</button>
+                </div>`;
+                
+                showNotification('Requirements code file uploaded', false);
+            };
+            reader.readAsText(file);
+        }
+
+        function clearRequirementsCode() {
+            state.requirementsCodeFile = null;
+            document.getElementById('reqCodeFileIndicator').innerHTML = '';
+            document.getElementById('reqCodeFile').value = '';
+        }
+
+        // API Functions
+        async function testApiConnection() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            if (!apiKey) {
+                showApiStatus('Please enter an API key', true);
+                return;
+            }
+
+            state.apiKey = apiKey;
+            sessionStorage.setItem('apiKey', apiKey);
+
+            showApiStatus('Testing connection...', false);
+
+            try {
+                const response = await fetch(state.apiEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': apiKey,
+                        'anthropic-version': '2023-06-01'
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 50,
+                        messages: [{
+                            role: 'user',
+                            content: 'Hello! Just testing the connection.'
+                        }]
+                    })
+                });
+
+                if (response.ok) {
+                    showApiStatus('✓ Connection successful! API key is valid.', false);
+                    showNotification('API connection successful!', false);
+                } else {
+                    const error = await response.json();
+                    showApiStatus(`✗ Connection failed: ${error.error?.message || 'Invalid API key'}`, true);
+                }
+            } catch (error) {
+                showApiStatus(`✗ Connection failed: ${error.message}`, true);
+            }
+        }
+
+        function showApiStatus(message, isError) {
+            const status = document.getElementById('apiStatus');
+            status.textContent = message;
+            status.className = `api-status ${isError ? 'error' : 'success'}`;
+        }
+
+        // Main Evaluation Function
+        async function evaluateAllSites() {
+            if (!state.apiKey) {
+                showNotification('Please enter and test your API key first', true);
+                return;
+            }
+
+            const requirements = document.getElementById('projectRequirements').value.trim();
+            if (!requirements) {
+                showNotification('Please enter project requirements', true);
+                return;
+            }
+
+            // Check if at least one site has data
+            const hasData = state.sites.some(letter => 
+                state.siteData[letter].screenshot || 
+                state.siteData[letter].codeFile || 
+                state.siteData[letter].voiceNotes
+            );
+
+            if (!hasData) {
+                showNotification('Please add data for at least one site', true);
+                return;
+            }
+
+            // Disable button and show progress
+            const btn = document.getElementById('evaluateBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Evaluating...';
+            document.getElementById('progressBar').classList.add('active');
+
+            try {
+                const prompt = buildEvaluationPrompt(requirements);
+                const response = await callClaudeAPI(prompt);
+                
+                parseAndDisplayResults(response);
+                
+                document.getElementById('resultsSection').classList.add('active');
+                document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+                
+                showNotification('Evaluation complete!', false);
+            } catch (error) {
+                showNotification(`Evaluation failed: ${error.message}`, true);
+                console.error('Evaluation error:', error);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🚀 Evaluate All Sites';
+                document.getElementById('progressBar').classList.remove('active');
+            }
+        }
+
+        function buildEvaluationPrompt(requirements) {
+            // Use the custom or default system prompt
+            let prompt = state.systemPrompt + '\n\n';
+            
+            prompt += `PROJECT REQUIREMENTS:
+====================
+${requirements}
+
+${state.requirementsCodeFile ? `\n\nREFERENCE CODE FILE:\n\`\`\`html\n${state.requirementsCodeFile}\n\`\`\`\n` : ''}
+
+WEBSITES TO EVALUATE:
+====================
+`;
+
+            state.sites.forEach(letter => {
+                const site = state.siteData[letter];
+                if (site.screenshot || site.codeFile || site.voiceNotes) {
+                    prompt += `\n\n--- SITE ${letter} ---\n`;
+                    
+                    if (site.screenshot) {
+                        prompt += `SCREENSHOT PROVIDED - analyze visual design\n`;
+                    }
+                    
+                    if (site.voiceNotes) {
+                        prompt += `\nObservations/Voice Notes:\n${site.voiceNotes}\n`;
+                    }
+                    
+                    if (site.codeFile) {
+                        prompt += `\nHTML Code:\n\`\`\`html\n${site.codeFile.substring(0, 15000)}\n\`\`\`\n`;
+                    }
+                }
+            });
+
+            prompt += `\n\nNow provide your evaluation in FOUR separate sections:
+
+## OVERALL RANKINGS
+
+## AESTHETIC RANKINGS
+
+## FUNCTIONALITY RANKINGS
+
+## RELEVANCE RANKINGS
+
+Remember to follow the exact format specified in the system prompt for each category.`;
+
+            return prompt;
+        }
+
+        async function callClaudeAPI(prompt) {
+            const messages = [{
+                role: 'user',
+                content: []
+            }];
+
+            // Add screenshots first
+            state.sites.forEach(letter => {
+                const site = state.siteData[letter];
+                if (site.screenshot) {
+                    const base64Data = site.screenshot.split(',')[1];
+                    const mediaType = site.screenshot.split(';')[0].split(':')[1];
+                    
+                    messages[0].content.push({
+                        type: 'image',
+                        source: {
+                            type: 'base64',
+                            media_type: mediaType,
+                            data: base64Data
+                        }
+                    });
+                    
+                    messages[0].content.push({
+                        type: 'text',
+                        text: `^ Screenshot for Site ${letter}`
+                    });
+                }
+            });
+
+            // Add main prompt
+            messages[0].content.push({
+                type: 'text',
+                text: prompt
+            });
+
+            const response = await fetch(state.apiEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': state.apiKey,
+                    'anthropic-version': '2023-06-01'
+                },
+                body: JSON.stringify({
+                    model: 'claude-sonnet-4-20250514',
+                    max_tokens: 4000,
+                    messages: messages
+                })
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error?.message || 'API request failed');
+            }
+
+            const data = await response.json();
+            return data.content[0].text;
+        }
+
+        function parseAndDisplayResults(response) {
+            // Split response into sections
+            const sections = {
+                overall: '',
+                aesthetic: '',
+                functionality: '',
+                relevance: ''
+            };
+
+            const lines = response.split('\n');
+            let currentSection = null;
+
+            lines.forEach(line => {
+                const lowerLine = line.toLowerCase();
+                if (lowerLine.includes('overall ranking')) {
+                    currentSection = 'overall';
+                } else if (lowerLine.includes('aesthetic ranking')) {
+                    currentSection = 'aesthetic';
+                } else if (lowerLine.includes('functionality ranking') || lowerLine.includes('functional ranking')) {
+                    currentSection = 'functionality';
+                } else if (lowerLine.includes('relevance ranking')) {
+                    currentSection = 'relevance';
+                } else if (currentSection && line.trim() && !line.startsWith('#')) {
+                    sections[currentSection] += line + '\n';
+                }
+            });
+
+            // Display results
+            Object.keys(sections).forEach(category => {
+                const textarea = document.getElementById(`${category}-result`);
+                textarea.value = sections[category].trim() || response;
+            });
+        }
+
+        // Tab Switching
+        function switchTab(category) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`${category}-tab`).classList.add('active');
+        }
+
+        // Copy Result
+        function copyResult(category) {
+            const textarea = document.getElementById(`${category}-result`);
+            textarea.select();
+            document.execCommand('copy');
+            showNotification(`${category.charAt(0).toUpperCase() + category.slice(1)} rankings copied!`, false);
+        }
+
+        // Export to CSV
+        function exportToCSV() {
+            const categories = ['overall', 'aesthetic', 'functionality', 'relevance'];
+            let csv = 'Category,Site,Rank,Score,Reasoning\n';
+
+            categories.forEach(category => {
+                const text = document.getElementById(`${category}-result`).value;
+                const lines = text.split('\n').filter(l => l.trim());
+                
+                let rank = 1;
+                lines.forEach(line => {
+                    if (line.match(/^[A-F]/)) {
+                        const site = line.charAt(0);
+                        const scoreMatch = line.match(/- (\d)/);
+                        const score = scoreMatch ? scoreMatch[1] : '';
+                        const reasoning = line.substring(line.indexOf(' ') + 1).replace(/,/g, ';');
+                        
+                        csv += `${category},${site},${rank},${score},"${reasoning}"\n`;
+                        rank++;
+                    }
+                });
+            });
+
+            // Download CSV
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `website-evaluation-${Date.now()}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            
+            showNotification('CSV exported successfully!', false);
+        }
+
+        // Session Management
+        function saveSession() {
+            const session = {
+                timestamp: new Date().toISOString(),
+                requirements: document.getElementById('projectRequirements').value,
+                requirementsCode: state.requirementsCodeFile,
+                sites: state.siteData,
+                systemPrompt: state.systemPrompt,
+                results: {
+                    overall: document.getElementById('overall-result').value,
+                    aesthetic: document.getElementById('aesthetic-result').value,
+                    functionality: document.getElementById('functionality-result').value,
+                    relevance: document.getElementById('relevance-result').value
+                }
+            };
+
+            localStorage.setItem('webevalSession', JSON.stringify(session));
+            showNotification('Session saved successfully!', false);
+        }
+
+        function loadSession() {
+            const saved = localStorage.getItem('webevalSession');
+            if (!saved) {
+                showNotification('No saved session found', true);
+                return;
+            }
+
+            if (!confirm('This will overwrite your current work. Continue?')) {
+                return;
+            }
+
+            const session = JSON.parse(saved);
+            
+            // Restore requirements
+            document.getElementById('projectRequirements').value = session.requirements || '';
+            state.requirementsCodeFile = session.requirementsCode;
+            
+            if (session.requirementsCode) {
+                document.getElementById('reqCodeFileIndicator').innerHTML = `<div class="uploaded-file">
+                    📄 Reference code (from saved session)
+                    <button onclick="clearRequirementsCode()">✕</button>
+                </div>`;
+            }
+
+            // Restore system prompt
+            if (session.systemPrompt) {
+                state.systemPrompt = session.systemPrompt;
+                document.getElementById('systemPrompt').value = session.systemPrompt;
+            }
+
+            // Restore site data
+            Object.keys(session.sites).forEach(letter => {
+                const siteData = session.sites[letter];
+                state.siteData[letter] = siteData;
+
+                // Restore voice notes
+                document.getElementById(`voice-notes-${letter}`).value = siteData.voiceNotes || '';
+
+                // Restore screenshot preview
+                if (siteData.screenshot) {
+                    document.getElementById(`screenshot-preview-${letter}`).innerHTML = `
+                        <img src="${siteData.screenshot}" class="screenshot-preview" alt="Screenshot ${letter}" />
+                        <span class="file-indicator">✓ ${siteData.screenshotPreview}</span>
+                    `;
+                }
+
+                // Restore code indicator
+                if (siteData.codeFile) {
+                    document.getElementById(`code-indicator-${letter}`).innerHTML = 
+                        `<span class="file-indicator">✓ Code file loaded</span>`;
+                }
+            });
+
+            // Restore results
+            if (session.results) {
+                document.getElementById('overall-result').value = session.results.overall || '';
+                document.getElementById('aesthetic-result').value = session.results.aesthetic || '';
+                document.getElementById('functionality-result').value = session.results.functionality || '';
+                document.getElementById('relevance-result').value = session.results.relevance || '';
+                
+                if (session.results.overall) {
+                    document.getElementById('resultsSection').classList.add('active');
+                }
+            }
+
+            const savedDate = new Date(session.timestamp);
+            showNotification(`Session from ${savedDate.toLocaleString()} loaded!`, false);
+        }
+
+        function clearAll() {
+            if (!confirm('This will clear ALL data including results. Are you sure?')) {
+                return;
+            }
+
+            // Clear requirements
+            document.getElementById('projectRequirements').value = '';
+            state.requirementsCodeFile = null;
+            document.getElementById('reqCodeFileIndicator').innerHTML = '';
+
+            // Clear all sites
+            state.sites.forEach(letter => {
+                state.siteData[letter] = {
+                    screenshot: null,
+                    screenshotPreview: null,
+                    codeFile: null,
+                    voiceNotes: '',
+                    voiceHistory: []
+                };
+
+                document.getElementById(`voice-notes-${letter}`).value = '';
+                document.getElementById(`screenshot-preview-${letter}`).innerHTML = '';
+                document.getElementById(`code-indicator-${letter}`).innerHTML = '';
+                document.getElementById(`screenshot-${letter}`).value = '';
+                document.getElementById(`code-${letter}`).value = '';
+            });
+
+            // Clear results
+            document.getElementById('overall-result').value = '';
+            document.getElementById('aesthetic-result').value = '';
+            document.getElementById('functionality-result').value = '';
+            document.getElementById('relevance-result').value = '';
+            document.getElementById('resultsSection').classList.remove('active');
+
+            showNotification('All data cleared', false);
+        }
+
+        // Setup Toggle
+        function toggleSetup() {
+            const content = document.getElementById('setupContent');
+            const icon = document.getElementById('setupToggle');
+            
+            content.classList.toggle('collapsed');
+            icon.textContent = content.classList.contains('collapsed') ? '▶' : '▼';
+        }
+
+        // Notification Helper
+        function showNotification(message, isError = false) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${isError ? 'error' : ''} active`;
+            
+            setTimeout(() => {
+                notification.classList.remove('active');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
